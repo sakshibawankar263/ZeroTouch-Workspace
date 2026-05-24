@@ -12,8 +12,8 @@ hands = mp_hands.Hands(
 
 mp_draw = mp.solutions.drawing_utils
 
-# Fingertip landmark IDs
-finger_tips = [4, 8, 12, 16, 20]
+# Fingertip IDs
+tip_ids = [4, 8, 12, 16, 20]
 
 # Start webcam
 cap = cv2.VideoCapture(0)
@@ -41,31 +41,51 @@ while True:
 
             h, w, c = frame.shape
 
-            landmark_list = []
+            landmarks = []
 
             for id, lm in enumerate(hand_landmarks.landmark):
                 cx = int(lm.x * w)
                 cy = int(lm.y * h)
 
-                landmark_list.append((id, cx, cy))
+                landmarks.append((id, cx, cy))
 
-                # Draw circle on fingertips
-                if id in finger_tips:
-                    cv2.circle(frame, (cx, cy), 10, (0, 255, 0), cv2.FILLED)
+            fingers = []
 
-            # Print index finger coordinates
-            if landmark_list:
-                index_finger = landmark_list[8]
+            # Thumb
+            if landmarks[tip_ids[0]][1] > landmarks[tip_ids[0] - 1][1]:
+                fingers.append(1)
+            else:
+                fingers.append(0)
 
-                cv2.putText(
-                    frame,
-                    f'Index Finger: {index_finger[1]}, {index_finger[2]}',
-                    (10, 40),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.7,
-                    (255, 255, 255),
-                    2
-                )
+            # Other fingers
+            for i in range(1, 5):
+                if landmarks[tip_ids[i]][2] < landmarks[tip_ids[i] - 2][2]:
+                    fingers.append(1)
+                else:
+                    fingers.append(0)
+
+            # Count open fingers
+            total_fingers = fingers.count(1)
+
+            cv2.putText(
+                frame,
+                f'Open Fingers: {total_fingers}',
+                (10, 50),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (0, 255, 0),
+                2
+            )
+
+            cv2.putText(
+                frame,
+                f'States: {fingers}',
+                (10, 90),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.8,
+                (255, 255, 255),
+                2
+            )
 
     cv2.imshow("ZeroTouch Workspace", frame)
 
