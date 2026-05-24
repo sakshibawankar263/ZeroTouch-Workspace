@@ -51,11 +51,11 @@ while True:
 
             fingers = []
 
-            # Thumb
-            if landmarks[tip_ids[0]][1] > landmarks[tip_ids[0] - 1][1]:
-                fingers.append(1)
+          # Thumb
+            if landmarks[4][1] < landmarks[3][1]:
+             fingers.append(1)
             else:
-                fingers.append(0)
+             fingers.append(0)
 
             # Other fingers
             for i in range(1, 5):
